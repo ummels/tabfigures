@@ -198,60 +198,61 @@
 % \global\setcounter{CodelineNo}{0}
 % Ease patching of commands. We store the original meaning of |\cmd|
 % in a safe place and access it later (in the redefinition) with
-% |\Tf@\cmd|.
+% |\tabfig@\cmd|.
 %    \begin{macrocode}
-\newcommand*\Tf@@[1]{Tf@@\expandafter\@cdr\string #1\@nil}
-\newcommand*\Tf@[1]{\csname \Tf@@{#1}\endcsname}
-\newcommand*\Tf@name{}
-\newcommand*\Tf@save[1]{%
-  \edef\Tf@name{\expandafter\expandafter\expandafter
-    \noexpand\Tf@{#1}}%
-  \expandafter\newcommand\Tf@name{}%
-  \expandafter\let\Tf@name #1%
+%<*package>
+\newcommand*\tabfig@@[1]{tabfig@@\expandafter\@cdr\string #1\@nil}
+\newcommand*\tabfig@[1]{\csname \tabfig@@{#1}\endcsname}
+\newcommand*\tabfig@name{}
+\newcommand*\tabfig@save[1]{%
+  \edef\tabfig@name{\expandafter\expandafter\expandafter
+    \noexpand\tabfig@{#1}}%
+  \expandafter\newcommand\tabfig@name{}%
+  \expandafter\let\tabfig@name #1%
 }
 %    \end{macrocode}
 % Just a shorthand.
 %    \begin{macrocode}
-\newcommand*\Tf@def[1]{%
-  \Tf@save{#1}%
+\newcommand*\tabfig@def[1]{%
+  \tabfig@save{#1}%
   \def#1%
 }
 %    \end{macrocode}
 % Patch |\l@|\meta{level} commands. These commands always take two
 % arguments, the second of which is the page number.
 %    \begin{macrocode}
-\newcommand*\Tf@pname{}
-\newcommand*\Tf@patch@l[1]{%
+\newcommand*\tabfig@pname{}
+\newcommand*\tabfig@patch@l[1]{%
   \@ifundefined{l@#1}{}{%
-    \edef\Tf@pname{\expandafter\noexpand\csname l@#1\endcsname}%
-    \expandafter\Tf@save\Tf@pname
-    \expandafter\edef\Tf@pname##1##2{%
-      \noexpand\Tf@
-      \expandafter\noexpand\Tf@pname
-      {##1}{\noexpand\Tf@font ##2}%
+    \edef\tabfig@pname{\expandafter\noexpand\csname l@#1\endcsname}%
+    \expandafter\tabfig@save\tabfig@pname
+    \expandafter\edef\tabfig@pname##1##2{%
+      \noexpand\tabfig@
+      \expandafter\noexpand\tabfig@pname
+      {##1}{\noexpand\tabfig@font ##2}%
     }%
   }%
 }
 %    \end{macrocode}
 % Debugging.
 %    \begin{macrocode}
-\newif\ifTf@debug \Tf@debugfalse
-\DeclareOption{debug}{\Tf@debugtrue}
+\newif\iftabfig@debug \tabfig@debugfalse
+\DeclareOption{debug}{\tabfig@debugtrue}
 %    \end{macrocode}
 %
 % \subsection{Equation numbers}
 % We distinguish between the two most frequent cases: \pkg{amsmath}
 % and standard \LaTeX. All of the following patches work by injecting
-% |\Tf@font| in the right place. They try to do this as robustly as
+% |\tabfig@font| in the right place. They try to do this as robustly as
 % possible by reusing the original definition.
 %    \begin{macrocode}
 \DeclareOption{eqno}{%
   \AtBeginDocument{%
     \@ifpackageloaded{amsmath}{%
-      \Tf@def\maketag@@@#1{\Tf@\maketag@@@{\Tf@font #1}}%
+      \tabfig@def\maketag@@@#1{\tabfig@\maketag@@@{\tabfig@font #1}}%
     }{%
       \CheckCommand*\@eqnnum{{\normalfont \normalcolor (\theequation)}}%
-      \def\@eqnnum{{\normalfont \Tf@font \normalcolor (\theequation)}}%
+      \def\@eqnnum{{\normalfont \tabfig@font \normalcolor (\theequation)}}%
     }%
   }%
 }
@@ -266,31 +267,31 @@
 % Generic. First two command that are using in formatting the lists by
 % default.
 %    \begin{macrocode}
-    \Tf@def\@dottedtocline#1#2#3#4#5{%
-      \Tf@\@dottedtocline{#1}{#2}{#3}{#4}{\Tf@font #5}%
+    \tabfig@def\@dottedtocline#1#2#3#4#5{%
+      \tabfig@\@dottedtocline{#1}{#2}{#3}{#4}{\tabfig@font #5}%
     }%
-    \Tf@def\numberline#1{%
-      \Tf@\numberline{\Tf@font #1}%
+    \tabfig@def\numberline#1{%
+      \tabfig@\numberline{\tabfig@font #1}%
     }%
 %    \end{macrocode}
 % Then a bunch of |\l@|\meta{level} commands for usually available
 % entry types, which might not use the commands from above.
 %    \begin{macrocode}
-    \Tf@patch@l{part}%
-    \Tf@patch@l{chapter}%
-    \Tf@patch@l{section}%
-    \Tf@patch@l{subsection}%
-    \Tf@patch@l{subsubsection}%
-    \Tf@patch@l{paragraph}%
-    \Tf@patch@l{subparagraph}%
-    \Tf@patch@l{figure}%
-    \Tf@patch@l{table}%
+    \tabfig@patch@l{part}%
+    \tabfig@patch@l{chapter}%
+    \tabfig@patch@l{section}%
+    \tabfig@patch@l{subsection}%
+    \tabfig@patch@l{subsubsection}%
+    \tabfig@patch@l{paragraph}%
+    \tabfig@patch@l{subparagraph}%
+    \tabfig@patch@l{figure}%
+    \tabfig@patch@l{table}%
 %    \end{macrocode}
 % Special support for parts and chapters in \pkg{memoir}.
 %    \begin{macrocode}
     \@ifclassloaded{memoir}{%
-      \Tf@def\cftchapterpresnum{\Tf@font \Tf@\cftchapterpresnum}%
-      \Tf@def\cftpartpresnum{\Tf@font \Tf@\cftpartpresnum}%
+      \tabfig@def\cftchapterpresnum{\tabfig@font \tabfig@\cftchapterpresnum}%
+      \tabfig@def\cftpartpresnum{\tabfig@font \tabfig@\cftpartpresnum}%
     }{}%
   }%
 }
@@ -301,10 +302,10 @@
 %    \begin{macrocode}
 \DeclareOption{enum}{%
   \AtBeginDocument{%
-    \Tf@def\labelenumi{\Tf@font \Tf@\labelenumi}%
-    \Tf@def\labelenumii{\Tf@font \Tf@\labelenumii}%
-    \Tf@def\labelenumiii{\Tf@font \Tf@\labelenumiii}%
-    \Tf@def\labelenumiv{\Tf@font \Tf@\labelenumiv}%
+    \tabfig@def\labelenumi{\tabfig@font \tabfig@\labelenumi}%
+    \tabfig@def\labelenumii{\tabfig@font \tabfig@\labelenumii}%
+    \tabfig@def\labelenumiii{\tabfig@font \tabfig@\labelenumiii}%
+    \tabfig@def\labelenumiv{\tabfig@font \tabfig@\labelenumiv}%
   }%
 }
 %    \end{macrocode}
@@ -314,10 +315,10 @@
 %    \begin{macrocode}
 \DeclareOption{bib}{%
   \AtBeginDocument{%
-    \Tf@def\@biblabel{\Tf@font \Tf@\@biblabel}%
+    \tabfig@def\@biblabel{\tabfig@font \tabfig@\@biblabel}%
     \@ifpackageloaded{biblatex}{%
-      \DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{\Tf@font #1}}%
-      \DeclareFieldFormat{labelalphawidth}{\mkbibbrackets{\Tf@font #1}}%
+      \DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{\tabfig@font #1}}%
+      \DeclareFieldFormat{labelalphawidth}{\mkbibbrackets{\tabfig@font #1}}%
     }{}%
   }%
 }
@@ -331,7 +332,7 @@
       \CheckCommand*\theCodelineNo{%
         \reset@font\scriptsize\arabic{CodelineNo}}%
       \def\theCodelineNo{%
-        \reset@font\Tf@font\scriptsize\arabic{CodelineNo}}%
+        \reset@font\tabfig@font\scriptsize\arabic{CodelineNo}}%
     }{}%
   }%
 }
@@ -347,10 +348,10 @@
 % Visual debugging: Set tabular figures (produced by this package) in
 % green.
 %    \begin{macrocode}
-\ifTf@debug
+\iftabfig@debug
   \RequirePackage{xcolor}%
-  \colorlet{Tf@debug}{green!50!black}%
-  \renewcommand\Tf@font{\figureversion{tabular}\color{Tf@debug}}%
+  \colorlet{tabfig@debug}{green!50!black}%
+  \renewcommand\tabfig@font{\tbfigures\color{tabfig@debug}}%
 \fi
 %    \end{macrocode}
 % Check if figure versions are supported at all. If not, we cannot do
@@ -363,8 +364,8 @@
     \let\tabfig@font\@empty
   }{}%
 }
-%    \end{macrocode}
-% That's it for now.
-% \endinput
 %</package>
+%    \end{macrocode}
+%
+% \Finale
 \endinput
