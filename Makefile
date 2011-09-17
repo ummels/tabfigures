@@ -1,5 +1,6 @@
 SHELL := /bin/sh
 PDFLATEX := pdflatex
+TAR := tar
 RM := rm -rf
 INSTALL := install
 INSTALLDIR := $(INSTALL) -d
@@ -15,20 +16,34 @@ tempfiles := $(pkg).aux $(pkg).log $(pkg).toc $(pkg).out
 # default rule
 
 .PHONY: all
-all: $(pkg).sty
+all: latex
 
-# rule for building the LaTeX package
+# rules for building the LaTeX package
+
+.PHONY: latex
+latex: $(pkg).sty
 
 $(pkg).sty: $(pkg).ins $(pkg).dtx
 	$(PDFLATEX) $(pkg).ins
 
-# rule for building the documentation
+# rules for building the documentation
+
+.PHONY: doc
+doc: $(pkg).pdf
 
 $(pkg).pdf: $(pkg).dtx
 	$(PDFLATEX) $(pkg).dtx
 	(while grep -s 'Rerun to get' $(pkg).log; do \
 	  $(PDFLATEX) $(pkg).dtx; \
 	done)
+
+# rules for building a tarball for CTAN
+
+.PHONY: ctan
+ctan: $(pkg).tar.gz
+
+$(pkg).tar.gz: $(pkg).ins $(pkg).dtx $(pkg).pdf README.ctan
+	$(TAR) -cz -s '/README\.ctan/README/' $^ > $@
 
 # rules for (un)installing everything
 
@@ -44,11 +59,11 @@ uninstall:
 	$(RM) $(TEXMFDIR)/tex/latex/$(pkg)
 	$(RM) $(TEXMFDIR)/doc/latex/$(pkg)
 
-# rules for cleaning the source tree
+# rule for cleaning the source tree
 
 .PHONY: clean
 clean:
-	$(RM) $(pkg).sty
+	$(RM) $(pkg).sty $(pkg).tar.gz
 	$(RM) $(tempfiles)
 
 # delete files on error
