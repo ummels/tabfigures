@@ -342,7 +342,7 @@
 % This command is used for switching to tabular figures. This can be
 % redefined to allow debugging, disabling, etc.
 %    \begin{macrocode}
-\newcommand*\Tf@font{\figureversion{tabular}}
+\newcommand*\tabfig@font{\tbfigures}
 %    \end{macrocode}
 % Visual debugging: Set tabular figures (produced by this package) in
 % green.
@@ -357,10 +357,10 @@
 % anything useful.
 %    \begin{macrocode}
 \AtBeginDocument{%
-  \@ifundefined{figureversion}{%
-    \PackageWarning{tabfigures}{There is no
-      \string\figureversion\space to support tabular figures}%
-    \let\Tf@font\@empty
+  \@ifundefined{tbfigures}{%
+    \PackageWarning{tabfigures}{There is no command
+      \string\tbfigures\space to support tabular figures}%
+    \let\tabfig@font\@empty
   }{}%
 }
 %    \end{macrocode}
