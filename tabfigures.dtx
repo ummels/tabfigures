@@ -124,6 +124,8 @@
 % the table of contents, enumerations and other material where
 % numbers should line up vertically. The \pkg{tabfigures} package tries
 % to assist you in the most common situations.
+% Throughout this document, tabular figures are colored
+% \textcolor{green!50!black}{green}.
 %
 % \section{Usage}
 %
@@ -136,8 +138,12 @@
 % in the preamble of your document. The options, which are described
 % in the next sections, control which patches are used. (If no options are
 % specified, the package has no effect.)
-% Throughout this document, tabular figures are colored
-% \textcolor{green!50!black}{green}.
+%
+% To have any effect, this package relies on the existence of a command
+% |\tbfigures| to switch to tabular figures. For instance, the
+% \pkg{MinionPro} package defines this command. (More precisely,
+% the \pkg{fontaxes} package, which is included by \pkg{MinionPro},
+% defines this command).
 %
 % \section{Options}
 %
@@ -210,12 +216,6 @@
 %    \end{macrocode}
 %
 % \section{Compatibility}
-%
-% To have any effect, this package relies on the existence of a command
-% |\tbfigures| to switch to tabular figures. For instance, the
-% \pkg{MinionPro} package defines this command. (More precisely,
-% the \pkg{fontaxes} package, which is included by \pkg{MinionPro},
-% defines this command).
 %
 % This package has been designed to work with the default settings of
 % the standard document classes \cls{article}, \cls{report} and
