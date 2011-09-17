@@ -1,9 +1,9 @@
 tabfigures - Using tabular figures with LaTeX
 =============================================
 
-The tabfigure packages is a collection of patches that inject a command to
-use tabular figures in some LaTeX environments where numbers should line up
-vertically, such as the table of contents and enumerations.
+The tabfigures package is a collection of patches for using
+tabular figures in some LaTeX environments where numbers should
+line up vertically such as the table of contents and enumerations.
 
 Usage
 -----
