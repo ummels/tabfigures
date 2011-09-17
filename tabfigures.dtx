@@ -27,42 +27,46 @@
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{tabfigures}[2011/09/17 v1.0 Patches for using tabular figures]
 %<*driver>
-\documentclass{ltxdoc}
-\usepackage{MinionPro}
+\documentclass[fleqn]{ltxdoc}
+
+\usepackage[T1]{fontenc}
+\IfFileExists{MinionPro.sty}{
+  \usepackage[smallfamily]{MinionPro}
+  \usepackage[scaled=0.8]{berasans}
+  \usepackage[scaled=0.8]{beramono}
+}{
+  \usepackage{lmodern}
+}
+\usepackage[toc,eqno,enum,bib,lineno,debug]{tabfigures}
+\usepackage[fleqn]{mathtools}
+\usepackage{array}
+\usepackage{hyperref}
 \usepackage{microtype}
-\usepackage[toc,eqno,enum,bib,lineno]{tabfigures}
-\usepackage{amsmath}
-\usepackage{xcolor}
-\usepackage{array,booktabs}
-\usepackage{ifpdf}
-\ifpdf\ifnum\pdftexversion<140 \else
-\InputIfFileExists{glyphtounicode.tex}{\pdfgentounicode=1}{}
-\fi\fi
+
+\hypersetup{
+  bookmarksnumbered,
+  colorlinks=false,
+  pdfborder={0 0 0},
+  pdftitle={Using tabular figures with LaTeX},
+  pdfauthor={Andreas B\"uhmann, Michael Ummels}
+}
+
 % markup
 \newcommand*\pkg[1]{\textsf{#1}}
-\newcommand*\cls{} \let\cls\pkg
-\newcommand*\bst{} \let\bst\pkg
-% show this package at work
-\colorlet{tabular}{green!50!black}
+\let\cls\pkg
+\let\bst\pkg
+
 \makeatletter
-\def\Tf@font{\figureversion{tab}\color{tabular}}
-\newcommand\Tf{\Tf@font}
+\let\Tf\tabfig@font
 \makeatother
+
 \newenvironment{sample}{%
-  \par
-  \addvspace{\smallskipamount}%
-  \minipage{\linewidth}%
+  \begin{trivlist}%
+  \item
 }{%
-  \endminipage
-  \vspace{\smallskipamount}%
-  \ignorespacesafterend
+  \end{trivlist}%
 }
-% metadata
-\title{Tabular figures}
-\author{Andreas B\"uhmann}
-\date{\fileversion\ -- \filedate}
-% hyperref
-\usepackage[colorlinks=false,pdfborder={0 0 0},pdfusetitle]{hyperref}
+
 \begin{document}
 \DocInput{tabfigures.dtx}
 \end{document}
@@ -70,49 +74,70 @@
 %<*doc>
 %\fi
 %
+% \CheckSum{184}
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
 % \GetFileInfo{tabfigures.dtx}
+%
+% \title{Using tabular figures with \LaTeX}
+% \author{Andreas B\"uhmann \and Michael Ummels}
+% \date{\fileversion\ -- \filedate}
+%
 % \maketitle
 %
-% \section{Purpose}
+% \section{Introduction}
 % 
-% Traditionally, there has not been any concept of proportional
-% figures (\proportionalfigures{0123456789}) versus tabular figures%
+% Traditionally, there has been no distinction between proportional
+% figures (\proportionalfigures{0123456789}) and tabular figures%
 % \marginpar{%
 %   \raggedleft\LARGE
 %   \begin{tabular}[t]{r>{\Tf}r}
 %     51 & 51 \\
 %     60 & 60 \\
 %   \end{tabular}
-% } ({\Tf 0123456789}) in \LaTeX. Effectively, the commonly used fonts
-% only included figures that are equally wide. That is why, with fonts
-% like \pkg{MinionPro} that use proportional figures by default, you
+% } ({\Tf 0123456789}) in \LaTeX. Effectively, the fonts commonly in use
+% with \LaTeX\ only include figures of uniform width. This is why, with fonts
+% like Minion Pro, which use proportional figures by default, you
 % have to specifically adapt your document class or even the \LaTeX\
-% kernel to this new task of using tabular figures in the right places
-% such as the table of contents, enumerations or other material where
-% numbers should line up vertically. This package tries to assist you
-% in the most common situations.
+% kernel to employ tabular figures in the right places:
+% the table of contents, enumerations or other material where
+% numbers should line up vertically. The \pkg{tabfigures} package tries
+% to assist you in the most common situations.
 %
-% \section{Effects}
+% \section{Usage}
 %
 % This package is a collection of patches that inject
-% |\figureversion{tabular}| into the involved formatting commands in
-% the right places. You have to explicitly enable those patches by
-% using one or more of the following package options, like this:
-% \begin{verbatim}
-% \usepackage[toc,eqno]{tabfigures}
-% \end{verbatim}
-% This way, you can always turn the patches off and see for yourself
-% if things break.  (While this package tries to be as robust as
-% possible, it has to touch the internals of other classes and
-% packages.)
-%
+% |\tbfigures| into the involved formatting commands in
+% the right places. You can load this package by putting
+% \begin{quote}
+% |\usepackage|\oarg{options}|{tabfigures}|
+% \end{quote}
+% in the preamble of your document. The options, which are described
+% in the next sections, control which patches are used. (If no options are
+% specified, the package has no effect.)
 % Throughout this document, tabular figures are colored
-% \textcolor{tabular}{green}.
+% \textcolor{green!50!black}{green}.
 %
-% \begin{description}
-% \item[\hyperdef{sample}{toc}{toc}] Use tabular figures for the
-%   numbering and for the page numbers in the table of contents, list
-%   of tables/figures, and similar lists.
+% \section{Options}
+%
+% \DescribeMacro{toc}
+% The \hyperdef{sample}{toc}{|toc|} option controls whether
+% tabular figures are used for the numbering and page numbers in the
+% table of contents, the list of tables/figures, and similar lists.
 %   \begin{sample}
 %     \contentsline{section}{%
 %       \numberline{4}Moving Information Around}{65}{sample.toc} %
@@ -122,7 +147,8 @@
 %       \numberline{4.2}Cross-References}{67}{sample.toc} %
 %   \end{sample}
 %
-% \item[eqno] Use tabular figures in equation numbers.
+% \noindent\DescribeMacro{eqno}
+% The |eqno| option enables tabular figures in equation numbers.
 %   \begin{sample}
 %     \setlength{\abovedisplayskip}{0pt}%
 %     \setlength{\belowdisplayskip}{0pt}%
@@ -133,8 +159,9 @@
 %       x+x'&=y+y' & X+X'&=Y+Y' & a'b&=c'b
 %     \end{align}
 %   \end{sample}
-% 
-% \item[enum] Use tabular figures in enumerations.
+%
+% \noindent\DescribeMacro{enum}
+% The |enum| option turns on tabular figures in enumerations.
 %   \begin{sample}
 %     \begin{enumerate} \setcounter{enumi}{38}
 %     \item The world's fastest supercomputer will have its speed
@@ -146,9 +173,9 @@
 %       image, are printed in Holland.
 %     \end{enumerate}
 %   \end{sample}
-% 
-% \item[bib] Use tabular figures for the labels in the bibliography.
-%   (The previous examples have been taken from the following sources.)
+%
+% \noindent\DescribeMacro{bib}
+% The |bib| option activates tabular figures for the labels in the bibliography.
 %   \begin{sample}
 %     \renewcommand\section[2]{}%
 %     \begin{thebibliography}{99}
@@ -161,33 +188,38 @@
 %       {100 Things We Didn't Know Last Year.} 28 December 2006.
 %     \end{thebibliography}
 %   \end{sample}
+% (The previous examples have been taken from these sources.)
+% \medskip
 %
-% \item[lineno] Use tabular figures for line numbers. Only the
-%   \pkg{doc} package is supported for now; other line-numbering
-%   packages might be added later.
-%   \begin{sample}
-%     \setcounter{CodelineNo}{48}%
+% \noindent\DescribeMacro{lineno}
+% The |lineno| option enables tabular figures for line numbers.
+% Only the \pkg{doc} package is supported for now; support for other
+% line-numbering packages is planned.
+% \setcounter{CodelineNo}{48}%
 %    \begin{macrocode}
 \DeclareOption{eqno}{%
   \AtBeginDocument{%
     \@ifpackageloaded{amsmath}{%
 %    \end{macrocode}
-% \end{sample}
-% \end{description}
 %
 % \section{Compatibility}
 %
+% To have any effect, this package relies on the existence of a command
+% |\tbfigures| to switch to tabular figures. For instance, the
+% \pkg{MinionPro} package defines this command. (More precisely,
+% the \pkg{fontaxes} package, which is included by \pkg{MinionPro},
+% defines this command).
+%
 % This package has been designed to work with the default settings of
-% the standard document classes \cls{article}, \cls{report}, and
-% \cls{book}; their \pkg{KOMA-Script} counterparts; the \cls{memoir}
-% class; the \pkg{amsmath} package; and the standard bibliographic
+% the standard document classes \cls{article}, \cls{report} and
+% \cls{book}, their \pkg{KOMA-Script} counterparts, the \cls{memoir}
+% class, the \pkg{amsmath} package, and the standard bibliographic
 % styles \bst{numeric} and \bst{alphabetic} of \pkg{biblatex} v0.6a.
 %
 % \StopEventually
 %
 % \iffalse
 %</doc>
-%<*package>
 % \fi
 %
 % \section{Implementation}
