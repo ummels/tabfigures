@@ -74,7 +74,7 @@
 %<*doc>
 %\fi
 %
-% \CheckSum{184}
+% \CheckSum{188}
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -271,7 +271,7 @@
 %    \end{macrocode}
 % Debugging.
 %    \begin{macrocode}
-\newif\iftabfig@debug \tabfig@debugfalse
+\newif\iftabfig@debug\tabfig@debugfalse
 \DeclareOption{debug}{\tabfig@debugtrue}
 %    \end{macrocode}
 %
@@ -394,9 +394,13 @@
 %    \begin{macrocode}
 \AtBeginDocument{%
   \@ifundefined{tbfigures}{%
-    \PackageWarning{tabfigures}{There is no command
-      \string\tbfigures\space to support tabular figures}%
-    \let\tabfig@font\@empty
+    \@ifpackageloaded{fontspec}{%
+      \def\tbfigures{\addfontfeatures{Numbers=Monospaced}}%
+    }{%
+      \PackageWarning{tabfigures}{There is no command
+        \string\tbfigures\space to support tabular figures}%
+      \let\tabfig@font\@empty
+    }%
   }{}%
 }
 %</package>
