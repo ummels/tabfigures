@@ -39,8 +39,8 @@ $(pkg).pdf: $(pkg).dtx
 
 # rules for building a tarball for CTAN
 
-.PHONY: ctan
-ctan: $(pkg).tar.gz
+.PHONY: dist
+dist: $(pkg).tar.gz
 
 $(pkg).tar.gz: $(pkg).ins $(pkg).dtx $(pkg).pdf README.ctan
 	$(TAR) -cz -s '/README\.ctan/README/' $^ > $@
