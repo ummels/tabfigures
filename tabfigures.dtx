@@ -39,6 +39,7 @@
 }
 \usepackage[toc,eqno,enum,bib,lineno,debug]{tabfigures}
 \usepackage[fleqn]{mathtools}
+\usepackage{hologo}
 \usepackage{array}
 \usepackage{hypdoc}
 \usepackage{microtype}
@@ -128,21 +129,28 @@
 %
 % \section{Usage}
 %
-% This package is a collection of patches that inject
-% |\tbfigures| into the involved formatting commands in
-% the right places. You can load this package by putting
+% The current version of this package requires \eTeX\ and the
+% \pkg{etoolbox} package (version 2.0a or later). You can load this
+% package by putting
 % \begin{quote}
 % |\usepackage|\oarg{options}|{tabfigures}|
 % \end{quote}
 % in the preamble of your document. The options, which are described
-% in the next sections, control which patches are used. (If no options are
-% specified, the package has no effect.)
+% in the next sections, control in which parts of your document
+% tabular figures are used. (If no options are specified, the package has
+% no effect.)
 %
 % To have any effect, this package relies on the existence of a command
 % |\tbfigures| to switch to tabular figures. For instance, the
 % \pkg{MinionPro} package defines this command. (More precisely,
 % the \pkg{fontaxes} package, which is included by \pkg{MinionPro},
-% defines this command).
+% defines this command). However, this package can also be used as a
+% companion to the \pkg{fontspec} package: if \pkg{fontspec} is
+% loaded (and |\tbfigures| is not defined), this package defines
+% |\tbfigures| as an alias for |\addfontfeatures{Numbers=Monospaced}|.
+% In this way, \pkg{tabfigures} can also be used with \hologo{XeTeX} and
+% \hologo{LuaTeX} (provided a suitable OpenType font is loaded with
+% \pkg{fontspec}).
 %
 % \section{Options}
 %
@@ -204,9 +212,9 @@
 % \medskip
 %
 % \noindent\DescribeMacro{lineno}
-% The |lineno| option enables tabular figures for line numbers.
-% Only the \pkg{doc} package is supported for now; support for other
-% line-numbering packages is planned.
+% The |lineno| option enables tabular figures for line numbers
+% in conjunction with the \pkg{doc}, \pkg{hypdoc}, \pkg{listings} or
+% \pkg{fancyvrb} package.
 % \setcounter{CodelineNo}{48}%
 %    \begin{macrocode}
 \DeclareOption{eqno}{%
