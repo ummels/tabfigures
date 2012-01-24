@@ -57,7 +57,7 @@
 \let\bst\pkg
 
 \makeatletter
-\let\Tf\tabfig@font
+\let\Tf\tabfig@tbf
 \makeatother
 
 \newenvironment{sample}{%
@@ -236,38 +236,9 @@
 % |\tabfig@\cmd|.
 %    \begin{macrocode}
 %<*package>
-\newcommand*\tabfig@@[1]{tabfig@@\expandafter\@cdr\string #1\@nil}
-\newcommand*\tabfig@[1]{\csname \tabfig@@{#1}\endcsname}
-\newcommand*\tabfig@name{}
-\newcommand*\tabfig@save[1]{%
-  \edef\tabfig@name{\expandafter\expandafter\expandafter
-    \noexpand\tabfig@{#1}}%
-  \expandafter\newcommand\tabfig@name{}%
-  \expandafter\let\tabfig@name #1%
-}
-%    \end{macrocode}
-% Just a shorthand.
-%    \begin{macrocode}
-\newcommand*\tabfig@def[1]{%
-  \tabfig@save{#1}%
-  \def#1%
-}
-%    \end{macrocode}
-% Patch |\l@|\meta{level} commands. These commands always take two
-% arguments, the second of which is the page number.
-%    \begin{macrocode}
-\newcommand*\tabfig@pname{}
-\newcommand*\tabfig@patch@l[1]{%
-  \@ifundefined{l@#1}{}{%
-    \edef\tabfig@pname{\expandafter\noexpand\csname l@#1\endcsname}%
-    \expandafter\tabfig@save\tabfig@pname
-    \expandafter\edef\tabfig@pname##1##2{%
-      \noexpand\tabfig@
-      \expandafter\noexpand\tabfig@pname
-      {##1}{\noexpand\tabfig@font ##2}%
-    }%
-  }%
-}
+\RequirePackage{etoolbox}
+\newcommand*\tabfig@warning[1]{%
+  \PackageWarningNoLine{tabfigures}{Command \string#1 could not be patched}}
 %    \end{macrocode}
 % Debugging.
 %    \begin{macrocode}
@@ -278,16 +249,20 @@
 % \subsection{Equation numbers}
 % We distinguish between the two most frequent cases: \pkg{amsmath}
 % and standard \LaTeX. All of the following patches work by injecting
-% |\tabfig@font| in the right place. They try to do this as robustly as
+% |\tabfig@tbf| in the right place. They try to do this as robustly as
 % possible by reusing the original definition.
 %    \begin{macrocode}
 \DeclareOption{eqno}{%
   \AtBeginDocument{%
     \@ifpackageloaded{amsmath}{%
-      \tabfig@def\maketag@@@#1{\tabfig@\maketag@@@{\tabfig@font #1}}%
+      \let\tabfig@maketag@@@\maketag@@@
+      \def\maketag@@@#1{\tabfig@maketag@@@{\tabfig@ttbf{#1}}}%
     }{%
-      \CheckCommand*\@eqnnum{{\normalfont \normalcolor (\theequation)}}%
-      \def\@eqnnum{{\normalfont \tabfig@font \normalcolor (\theequation)}}%
+      \expandafter\def\expandafter\tabfig@eqnnum\@eqnnum
+      \patchcmd{\tabfig@eqnnum}%
+        {\theequation}{\tabfig@ttbf{\theequation}}%
+        {\def\@eqnnum{{\tabfig@eqnnum}}}%
+        {\tabfig@warning{\@eqnnum}}%
     }%
   }%
 }
@@ -302,31 +277,42 @@
 % Generic. First two command that are used in formatting the lists by
 % default.
 %    \begin{macrocode}
-    \tabfig@def\@dottedtocline#1#2#3#4#5{%
-      \tabfig@\@dottedtocline{#1}{#2}{#3}{#4}{\tabfig@font #5}%
+    \let\tabfig@@dottedtocline\@dottedtocline
+    \def\@dottedtocline#1#2#3#4#5{%
+      \tabfig@@dottedtocline{#1}{#2}{#3}{#4}{\tabfig@ttbf{#5}}%
     }%
-    \tabfig@def\numberline#1{%
-      \tabfig@\numberline{\tabfig@font #1}%
-    }%
+    \let\tabfig@numberline\numberline
+    \def\numberline#1{\tabfig@numberline{\tabfig@ttbf{#1}}}%
 %    \end{macrocode}
 % Then a bunch of |\l@|\meta{level} commands for usually available
 % entry types, which might not use the commands from above.
 %    \begin{macrocode}
-    \tabfig@patch@l{part}%
-    \tabfig@patch@l{chapter}%
-    \tabfig@patch@l{section}%
-    \tabfig@patch@l{subsection}%
-    \tabfig@patch@l{subsubsection}%
-    \tabfig@patch@l{paragraph}%
-    \tabfig@patch@l{subparagraph}%
-    \tabfig@patch@l{figure}%
-    \tabfig@patch@l{table}%
+    \let\tabfig@l@part\l@part
+    \def\l@part#1#2{\tabfig@l@part{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@chapter\l@chapter
+    \def\l@chapter#1#2{\tabfig@l@chapter{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@section\l@section
+    \def\l@section#1#2{\tabfig@l@section{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@subsection\l@subsection
+    \def\l@subsection#1#2{\tabfig@l@subsection{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@subsubsection\l@subsubsection
+    \def\l@subsubsection#1#2{\tabfig@l@subsubsection{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@paragraph\l@paragraph
+    \def\l@paragraph#1#2{\tabfig@l@paragraph{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@subparagraph\l@subparagraph
+    \def\l@subparagraph#1#2{\tabfig@l@subparagraph{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@figure\l@figure
+    \def\l@figure#1#2{\tabfig@l@figure{#1}{\tabfig@ttbf{#2}}}
+    \let\tabfig@l@table\l@table
+    \def\l@table#1#2{\tabfig@l@table{#1}{\tabfig@ttbf{#2}}}
 %    \end{macrocode}
 % Special support for parts and chapters in \pkg{memoir}.
 %    \begin{macrocode}
     \@ifclassloaded{memoir}{%
-      \tabfig@def\cftchapterpresnum{\tabfig@font \tabfig@\cftchapterpresnum}%
-      \tabfig@def\cftpartpresnum{\tabfig@font \tabfig@\cftpartpresnum}%
+      \apptocmd{\cftpartpresnum}%
+        {\tabfig@tbf}{}{\tabfig@warning{\cftpartpresnum}}%
+      \apptocmd{\cftchapterpresnum}%
+        {\tabfig@tbf}{}{\tabfig@warning{\cftchapterpresnum}}%
     }{}%
   }%
 }
@@ -337,10 +323,18 @@
 %    \begin{macrocode}
 \DeclareOption{enum}{%
   \AtBeginDocument{%
-    \tabfig@def\labelenumi{\tabfig@font \tabfig@\labelenumi}%
-    \tabfig@def\labelenumii{\tabfig@font \tabfig@\labelenumii}%
-    \tabfig@def\labelenumiii{\tabfig@font \tabfig@\labelenumiii}%
-    \tabfig@def\labelenumiv{\tabfig@font \tabfig@\labelenumiv}%
+    \patchcmd{\labelenumi}%
+      {\theenumi}{\tabfig@ttbf{\theenumi}}%
+      {}{\tabfig@warning{\labelenumi}}%
+    \patchcmd{\labelenumii}%
+      {\theenumii}{\tabfig@ttbf{\theenumii}}%
+      {}{\tabfig@warning{\labelenumii}}%
+    \patchcmd{\labelenumiii}%
+      {\theenumiii}{\tabfig@ttbf{\theenumiii}}%
+      {}{\tabfig@warning{\labelenumiii}}%
+    \patchcmd{\labelenumiv}%
+      {\theenumiv}{\tabfig@ttbf{\theenumiv}}%
+      {}{\tabfig@warning{\labelenumiv}}%
   }%
 }
 %    \end{macrocode}
@@ -350,10 +344,11 @@
 %    \begin{macrocode}
 \DeclareOption{bib}{%
   \AtBeginDocument{%
-    \tabfig@def\@biblabel{\tabfig@font \tabfig@\@biblabel}%
+    \let\tabfig@@biblabel\@biblabel
+    \def\@biblabel#1{\tabfig@@biblabel{\tabfig@ttbf{#1}}}%
     \@ifpackageloaded{biblatex}{%
-      \DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{\tabfig@font #1}}%
-      \DeclareFieldFormat{labelalphawidth}{\mkbibbrackets{\tabfig@font #1}}%
+      \DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{\tabfig@ttbf{#1}}}%
+      \DeclareFieldFormat{labelalphawidth}{\mkbibbrackets{\tabfig@ttbf{#1}}}%
     }{}%
   }%
 }
@@ -363,22 +358,56 @@
 %    \begin{macrocode}
 \DeclareOption{lineno}{%
   \AtBeginDocument{%
-    \@ifpackageloaded{doc}{%
-      \CheckCommand*\theCodelineNo{%
-        \reset@font\scriptsize\arabic{CodelineNo}}%
-      \def\theCodelineNo{%
-        \reset@font\tabfig@font\scriptsize\arabic{CodelineNo}}%
+%    \end{macrocode}
+% Support for the \pkg{doc} and \pkg{hypdoc} packages.
+%    \begin{macrocode}
+    \@ifpackageloaded{hypdoc}{%
+      \ifpatchable{\theCodelineNo}{\HDorg@theCodelineNo}{%
+        \patchcmd{\HDorg@theCodelineNo}%
+          {\arabic{CodelineNo}}%
+          {\tabfig@ttbf{\arabic{CodelineNo}}}%
+          {}{\tabfig@warning{\HDorg@theCodelineNo}}%
+      }{%
+        \patchcmd{\theCodelineNo}%
+          {\arabic{CodelineNo}}%
+          {\tabfig@ttbf{\arabic{CodelineNo}}}%
+          {}{\tabfig@warning{\theCodelineNo}}%
+      }%
+    }{%
+      \@ifpackageloaded{doc}{%
+        \patchcmd{\theCodelineNo}%
+          {\arabic{CodelineNo}}%
+          {\tabfig@ttbf{\arabic{CodelineNo}}}%
+          {}{\tabfig@warning{\theCodelineNo}}%
+      }{}%
+    }%
+%    \end{macrocode}
+% Support for the \pkg{listings} package.
+%    \begin{macrocode}
+    \@ifpackageloaded{listings}{%
+      \apptocmd{\lst@numberstyle}{\tabfig@tbf}%
+        {}{\tabfig@warning{\lst@numberstyle}}%
     }{}%
+%    \end{macrocode}
+% Support for the \pkg{fancyvrb} package.
+%    \begin{macrocode}
+    \@ifpackageloaded{fancyvrb}{%
+      \patchcmd{\theFancyVerbLine}%
+        {\arabic{FancyVerbLine}}%
+        {\tabfig@ttbf{\arabic{FancyVerbLine}}}%
+        {}{\tabfig@warning{\theFancyVerbLine}}%
+    }{}
   }%
 }
 \ProcessOptions\relax
 %    \end{macrocode}
 %
 % \subsection{Auxiliary macros}
-% This command is used for switching to tabular figures. This can be
+% These commands are used for switching to tabular figures. This can be
 % redefined to allow debugging, disabling, etc.
 %    \begin{macrocode}
-\newcommand*\tabfig@font{\tbfigures}
+\newcommand*\tabfig@tbf{\tbfigures}
+\DeclareTextFontCommand{\tabfig@ttbf}{\tabfig@tbf}
 %    \end{macrocode}
 % Visual debugging: Set tabular figures (produced by this package) in
 % green.
@@ -386,7 +415,7 @@
 \iftabfig@debug
   \RequirePackage{xcolor}%
   \colorlet{tabfig@debug}{green!50!black}%
-  \renewcommand\tabfig@font{\tbfigures\color{tabfig@debug}}%
+  \renewcommand\tabfig@tbf{\tbfigures\color{tabfig@debug}}%
 \fi
 %    \end{macrocode}
 % Check if figure versions are supported at all. If not, we cannot do
@@ -399,7 +428,7 @@
     }{%
       \PackageWarning{tabfigures}{There is no command
         \string\tbfigures\space to support tabular figures}%
-      \let\tabfig@font\@empty
+      \let\tabfig@tbf\@empty
     }%
   }{}%
 }
