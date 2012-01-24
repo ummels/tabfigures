@@ -426,7 +426,7 @@
     \@ifpackageloaded{fontspec}{%
       \def\tbfigures{\addfontfeatures{Numbers=Monospaced}}%
     }{%
-      \PackageWarning{tabfigures}{There is no command
+      \PackageWarningNoLine{tabfigures}{There is no command
         \string\tbfigures\space to support tabular figures}%
       \let\tabfig@tbf\@empty
     }%
