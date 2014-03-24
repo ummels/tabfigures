@@ -1,6 +1,6 @@
 SHELL := /bin/sh
 PDFLATEX := pdflatex
-TAR := tar
+TAR := gtar -c -z --owner=root --group=root --mode='a+r'
 RM := rm -rf
 INSTALL := install
 INSTALLDIR := $(INSTALL) -d
@@ -43,7 +43,7 @@ $(pkg).pdf: $(pkg).dtx
 dist: $(pkg).tar.gz
 
 $(pkg).tar.gz: $(pkg).ins $(pkg).dtx $(pkg).pdf README.ctan
-	$(TAR) -cz -s '/README\.ctan/README/' $^ > $@
+	$(TAR) --transform 's,^,$(pkg)/,g' --transform 's,README\.ctan,README,' $^ > $@
 
 # rules for (un)installing everything
 
